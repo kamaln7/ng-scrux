@@ -2,6 +2,7 @@ thinky = require "#{__dirname}/../init"
 r = thinky.r
 Todo = require "#{__dirname}/Todo"
 bcrypt = require "#{__dirname}/../../util/bcrypt"
+uuid = require 'node-uuid'
 
 User = thinky.createModel 'users', {
   id: String
@@ -29,6 +30,7 @@ User.isUnique = (username) ->
 User.register = (username, password) ->
   user = new User {
     username: username
+    tokens: [@generateToken()]
   }
 
   User
@@ -39,6 +41,8 @@ User.register = (username, password) ->
     User.isUnique username
   .then ->
     user.save()
+
+User.generateToken = -> uuid.v4()
 
 # Exceptions
 class User.usernameNotUnique extends Error then constructor: -> super

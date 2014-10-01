@@ -15,17 +15,16 @@ router.post '/', (req, res) ->
   else
     {username, password} = req.body
 
-    User.register(username, password).then ->
+    User.register(username, password).then (user) ->
       res.status(201).json {
-        message: 'Registered!'
+        token: user.tokens[0]
       }
-    .catch (e) ->
-      if e instanceof User.usernameNotUnique
+    .catch User.usernameNotUnique, ->
         res.status(400).json {
           errors: ['Username already exists.']
         }
-      else
-        res.status(500)
+    .catch ->
+      res.status 500
 
 module.exports =
   prefix: '/users'
