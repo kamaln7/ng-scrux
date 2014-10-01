@@ -3,17 +3,16 @@ router = express.Router()
 
 User = require '../../../database/models/User'
 auth = require '../middlewares/auth'
+jsonException = require '../middlewares/jsonException'
+jsonErrors = require '../middlewares/jsonErrors'
 
-router.post '/', (req, res) ->
+router.post '/register', (req, res) ->
   req.checkBody('username', 'Username must be at least 4 characters long').isLength(4)
   req.checkBody('password', 'Password must be at least 8 characters long').isLength(8)
 
   errors = req.validationErrors()
   if errors
-    res.status 400
-    .json {
-      errors: errors
-    }
+    res.jsonErrors 400, errors
   else
     {username, password} = req.body
 
@@ -22,14 +21,8 @@ router.post '/', (req, res) ->
       .json {
         token: user.tokens[0]
       }
-    .catch User.usernameNotUnique, (e) ->
-      res.status 400
-      .json {
-        errors: [e.message]
-      }
-    .catch ->
-      res.status 500
-      .end()
+    .catch User.usernameNotUnique, (e) -> res.jsonException e, 400
+    .catch (e) -> res.silentJsonException e
 
 router.post '/login', (req, res) ->
   req.checkBody('username', 'You must supply a username').notEmpty()
@@ -37,40 +30,23 @@ router.post '/login', (req, res) ->
 
   errors = req.validationErrors()
   if errors
-    res.status 400
-    .json {
-      errors: errors
-    }
+    res.jsonErrors 400, errors
   else
     {username, password} = req.body
 
     User.login(username, password).then (user) ->
-      res.status 200
-      .json {
+      res.json {
         token: user.token
       }
-    .catch User.invalidCredentials, (e) ->
-      res.status 403
-      .json {
-        errors: [e.message]
-      }
-    .catch ->
-      res.status 500
-      .end()
+    .catch User.invalidCredentials, (e) -> res.jsonException 403, e
+    .catch (e) -> res.silentJsonException e
 
 router.get '/logout', auth, (req, res) ->
   User.logout res.locals.user.username, res.locals.token
   .then ->
-    res.status 200
-    .end()
-  .catch User.invalidCredentials, (e) ->
-    res.status 403
-    .json {
-      errors: [e.message]
-    }
-  .catch ->
-    res.status 500
-    .end()
+    res.end()
+  .catch User.invalidCredentials, (e) -> res.jsonException 403, e
+  .catch (e) -> res.silentJsonException e
 
 module.exports =
   prefix: '/users'

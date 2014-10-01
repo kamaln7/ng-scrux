@@ -7,13 +7,7 @@ auth = (req, res, next) ->
   else
     User.auth req.headers.username, req.headers.token, res
     .then -> next()
-    .catch User.invalidCredentials, (e) ->
-      res.status 403
-      .json {
-        errors: [e.message]
-      }
-    .catch (e) ->
-      res.status 500
-      .end()
+    .catch User.invalidCredentials, (e) -> res.jsonException 403, e
+    .catch (e) -> res.silentJsonException e
 
 module.exports = auth
