@@ -13,8 +13,8 @@ router.post '/', (req, res) ->
       errors: errors
     }
   else
-    username = req.body.username
-    password = req.body.password
+    {username, password} = req.body
+
     User.register(username, password).then ->
       res.status(201).json {
         message: 'Registered!'
