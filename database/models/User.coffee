@@ -11,6 +11,7 @@ User = thinky.createModel 'users', {
   password: String
   tokens: [String]
   createdAt: {_type: Date, default: r.now()}
+  updatedAt: {_type: Date, default: r.now()}
 }
 
 User.ensureIndex 'username'
