@@ -14,4 +14,9 @@ Todo.pre 'save', (next) ->
   @updatedAt = new Date()
   next()
 
+# Logic
+
+Todo.ofUser = (user) ->
+  @filter r.row('userId').eq user.id
+
 module.exports = Todo
