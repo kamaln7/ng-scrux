@@ -14,6 +14,10 @@ User = thinky.createModel 'users', {
   updatedAt: {_type: Date, default: r.now()}
 }
 
+User.pre 'save', (next) ->
+  @updatedAt = new Date()
+  next()
+
 User.ensureIndex 'username'
 User.hasMany Todo, 'todos', 'id', 'userId'
 
