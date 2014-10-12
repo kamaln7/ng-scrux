@@ -1,0 +1,9 @@
+<button ng-click="loadTodos()">Reload</button>
+
+<ul ng-show="todos.length">
+    <li ng-repeat="todo in todos" data-id="{{ todo.id }}">
+        [<span ng-show="{{ todo.done }}">V</span><span ng-hide="{{ todo.done }}">X</span>]{{ todo.content }}
+        <button ng-click="delete($index)">Delete</button><button ng-click="toggle($index)">Toggle</button>
+    </li>
+</ul>
+<p ng-hide="todos.length">No todos found.</p>

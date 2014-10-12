@@ -18,5 +18,8 @@ apiV1 = require './api/v1/app'
 app.use '/api/v1', apiV1
 console.log 'Loaded API v1'
 
+app.use express.static 'frontend/v1'
+console.log 'Loaded Frontend v1'
+
 app.listen config.http.port, config.http.host, ->
   console.log "ng-scrux listening on #{config.http.host}:#{config.http.port}"

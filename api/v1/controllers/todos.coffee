@@ -13,7 +13,8 @@ router.use auth
 router.get '/', (req, res) ->
   Todo
   .ofUser res.locals.user
-  .withFields 'id', 'content'
+  .withFields 'id', 'content', 'done'
+  .orderBy r.desc 'createdAt'
   .run()
   .then (todos) ->
     res.json todos
@@ -38,7 +39,7 @@ router.post '/', (req, res) ->
     .then (todo) ->
       res
       .status 201
-      .json _.pick todo, 'id', 'content'
+      .json _.pick todo, 'id', 'content', 'done'
     .catch (e) -> res.silentJsonException e
 
 router['delete'] '/:id', (req, res) ->
@@ -54,27 +55,23 @@ router['delete'] '/:id', (req, res) ->
   .catch (e) -> res.silentJsonException e
 
 router.put '/:id', (req, res) ->
-  req.checkBody('content', 'Content must be at least 3 characters long').isLength(3)
+  req.checkBody('content', 'Content must be at least 3 characters long').optional().isLength 3
+  req.checkBody('done', 'Done must be either true or false').optional().matches /^(true|false)$/i
 
   errors = req.validationErrors()
   if errors
     res.jsonErrors 400, errors
   else
-    {content} = req.body
     {id} = req.params
+    toUpdate = _.pick req.body, ['content', 'done']
 
     Todo.ofUser res.locals.user
     .filter r.row('id').eq id
-    .update {
-      content: content
-    }
+    .update toUpdate
     .run()
-    .then (todo) ->
+    .then () ->
       res
-      .json {
-        id: id
-        content: content
-      }
+      .json _.merge {id: id}, toUpdate
     .catch (e) -> res.silentJsonException e
 
 module.exports =

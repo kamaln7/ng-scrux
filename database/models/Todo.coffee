@@ -4,7 +4,7 @@ r = thinky.r
 Todo = thinky.createModel 'todos', {
   id: String
   content: String
-  done: Boolean
+  done: {_type: Boolean, default: false}
   userId: String
   createdAt: {_type: Date, default: r.now()}
   updatedAt: {_type: Date, default: r.now()}
